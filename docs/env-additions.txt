@@ -1,0 +1,6 @@
+# Append these lines to .env.example (and your local .env).
+# They are DUMMY demo credentials used only by the seeder.
+SEED_ADMIN_EMAIL=admin@example.com
+SEED_ADMIN_PASSWORD=Admin@12345
+SEED_VIEWER_EMAIL=viewer@example.com
+SEED_VIEWER_PASSWORD=Viewer@12345

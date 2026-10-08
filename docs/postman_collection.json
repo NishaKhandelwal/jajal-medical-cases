@@ -1,0 +1,14 @@
+{
+  "info": {"name": "Jajal Medical Cases API", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},
+  "variable": [{"key": "base", "value": "http://127.0.0.1:8000/api"}, {"key": "token", "value": ""}],
+  "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+  "item": [
+    {"name": "Login", "request": {"method": "POST", "auth": {"type": "noauth"}, "header": [{"key": "Accept", "value": "application/json"}, {"key": "Content-Type", "value": "application/json"}], "url": "{{base}}/login", "body": {"mode": "raw", "raw": "{\"email\":\"admin@example.com\",\"password\":\"Admin@12345\"}"}}},
+    {"name": "Logout", "request": {"method": "POST", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base}}/logout"}},
+    {"name": "List cases", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base}}/cases?status=Planning"}},
+    {"name": "Create case", "request": {"method": "POST", "header": [{"key": "Accept", "value": "application/json"}, {"key": "Content-Type", "value": "application/json"}], "url": "{{base}}/cases", "body": {"mode": "raw", "raw": "{\"case_number\":\"CASE-0100\",\"patient_reference\":\"PT-0100AB\",\"surgeon_name\":\"Dr. Rao\",\"implant_type\":\"Hip Implant\",\"status\":\"Draft\",\"priority\":\"High\",\"surgery_date\":\"2026-12-15\"}"}}},
+    {"name": "Get case", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base}}/cases/1"}},
+    {"name": "Update case", "request": {"method": "PUT", "header": [{"key": "Accept", "value": "application/json"}, {"key": "Content-Type", "value": "application/json"}], "url": "{{base}}/cases/1", "body": {"mode": "raw", "raw": "{\"case_number\":\"CASE-0001\",\"patient_reference\":\"PT-0001AB\",\"surgeon_name\":\"Dr. Rao\",\"implant_type\":\"Hip Implant\",\"status\":\"Approved\",\"priority\":\"Low\"}"}}},
+    {"name": "Delete case", "request": {"method": "DELETE", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base}}/cases/1"}}
+  ]
+}
