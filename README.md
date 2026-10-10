@@ -1,87 +1,111 @@
-# Medical Case Management (Jajal Medical – Intern Assignment)
+# Medical Case Management
+### Jajal Medical — Software Developer Internship Assignment
 
-A small Laravel application for managing medical-device implant cases from Draft to Completed.
+A Laravel-based web application for managing medical-device implant cases throughout their lifecycle, from Draft to Completed.
 
 **Dummy data only — no real patient information is used.**
 
 ## Technology Stack
 
-- Laravel 11/12
-- PHP 8.2+
-- MySQL
-- Blade + Tailwind CSS
-- Laravel Breeze for authentication
-- Laravel Sanctum for API authentication
-- PHPUnit for automated testing
+- **Backend:** PHP 8.4, Laravel 12
+- **Database:** MySQL
+- **Frontend:** Blade, Tailwind CSS
+- **Authentication:** Laravel Breeze
+- **API Authentication:** Laravel Sanctum
+- **Testing:** PHPUnit
+- **Tools:** Composer, npm, Git, Postman
 
 ## Features
 
+### Authentication and Authorization
 - Login and logout using Laravel Breeze
-- Clear error message for invalid login credentials
-- Dashboard with case counts:
-  - Total Cases
+- Clear validation errors for invalid login credentials
+- Role-based access control for Admin and Viewer
+- Server-side authorization for protected operations
+
+### Dashboard
+- Total case count
+- Cases grouped by status:
   - Planning
   - In Review
   - Approved
   - Completed
-- Case list with:
-  - Pagination (10 cases per page)
-  - Search by Case Number or Surgeon Name
-  - Filter by Status
-  - Filter by Priority
-  - Column sorting
-- Create and edit cases using a shared form
-- Case details page
-- Admin-only case deletion with server-side Policy authorization
-- Admin and Viewer roles
-- REST API secured with Laravel Sanctum tokens
-- Consistent JSON API response format
+
+### Case Management
+- Create, view, and edit medical cases
+- Admin-only case deletion
+- Case details page with creator and record timestamps
+- Search by Case Number or Surgeon Name
+- Filter by Status and Priority
+- Column sorting
+- Pagination with 10 cases per page
 - Form Request validation
-- Automated feature tests
+- Unique Case Number enforcement
+
+### Status-Change Audit Log
+- Records previous and new status when a case's status changes
+- Stores the associated case, authenticated user ID, and timestamp
+- Captures changes made through both the web interface and REST API
+- Does not create a status-change entry when unrelated fields are updated
+- Displays status history on the case details page
+
+### REST API
+- Token-based authentication using Laravel Sanctum
+- Consistent JSON response structure
+- Paginated case listing
+- Search, filtering, and sorting
+- Request validation and JSON error responses
 
 ## User Roles
 
-| Role | View Cases | Create/Edit | Change Status | Delete |
-|---|---|---|---|---|
-| Admin | Yes | Yes | Yes | Yes |
-| Viewer | Yes | No | No | No |
+| Capability | Admin | Viewer |
+|---|---|---|
+| View cases | Yes | Yes |
+| Create cases | Yes | No |
+| Edit cases | Yes | No |
+| Change status | Yes | No |
+| Delete cases | Yes | No |
 
-## Setup
+## Setup Instructions
+
+### Prerequisites
+
+Install the following:
+
+- PHP 8.2 or later, with the required Laravel extensions
+- Composer
+- MySQL
+- Node.js and npm
 
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/NishaKhandelwal/jajal-medical-cases.git
 cd jajal-medical-cases
 ```
 
-### 2. Install PHP dependencies
+### 2. Install dependencies
 
 ```bash
 composer install
-```
-
-### 3. Install frontend dependencies
-
-```bash
 npm install
 npm run build
 ```
 
-### 4. Configure the environment
+### 3. Configure the environment
 
-Copy `.env.example` to `.env`.
+Create a local `.env` file from `.env.example`.
 
-On Linux/macOS:
-
-```bash
-cp .env.example .env
-```
-
-On Windows PowerShell:
+**Windows PowerShell**
 
 ```powershell
 Copy-Item .env.example .env
+```
+
+**Linux/macOS**
+
+```bash
+cp .env.example .env
 ```
 
 Generate the application key:
@@ -90,7 +114,7 @@ Generate the application key:
 php artisan key:generate
 ```
 
-Update the database settings in `.env`:
+Configure the database connection in `.env`:
 
 ```env
 DB_CONNECTION=mysql
@@ -101,54 +125,75 @@ DB_USERNAME=root
 DB_PASSWORD=your_mysql_password
 ```
 
-Create the MySQL database if it does not already exist:
+Configure the demo account settings in `.env` as well:
+
+```env
+SEED_ADMIN_EMAIL=admin@example.com
+SEED_ADMIN_PASSWORD=your_admin_password
+SEED_VIEWER_EMAIL=viewer@example.com
+SEED_VIEWER_PASSWORD=your_viewer_password
+```
+
+Use strong local passwords and keep `.env` out of version control.
+
+Create the database in MySQL if it does not exist:
 
 ```sql
 CREATE DATABASE jajal_medical_cases;
 ```
 
-### 5. Run migrations and seed demo data
+### 4. Run migrations and seed demo data
 
 ```bash
 php artisan migrate --seed
 ```
 
-The seeder creates demo Admin and Viewer users along with dummy medical cases.
+This creates the database tables and seeds the initial demo accounts and sample medical cases.
 
-### 6. Start the application
+**Important:** Seed the database during initial setup. You do not need to seed it every time you start Laravel. The database stores accounts and cases between application restarts.
+
+The current seeder creates demo users and 25 cases using predefined case numbers. Avoid repeatedly running the seeder against an existing database, as it uses record creation rather than updating existing accounts.
+
+If you already have a database with records, back it up before making changes to the database or running seeders again.
+
+### 5. Start the application
 
 ```bash
 php artisan serve
 ```
 
-The application will be available at:
+Open:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-## Test Login Credentials
+To stop the server, press `Ctrl+C`. Restarting the development server should not erase your MySQL records.
 
-The following are dummy credentials intended only for testing.
+## Demo Login Credentials
 
-| Role | Email | Password |
-|---|---|---|
-| Admin | admin@example.com | Admin@12345 |
-| Viewer | viewer@example.com | Viewer@12345 |
+The seeded accounts use the email addresses configured through the `SEED_*` environment variables.
 
-The credentials are configured through the `SEED_*` variables in `.env.example`.
+| Role | Default email |
+|---|---|
+| Admin | `admin@example.com` |
+| Viewer | `viewer@example.com` |
+
+The passwords are determined by `SEED_ADMIN_PASSWORD` and `SEED_VIEWER_PASSWORD` in your local `.env` file. Use the configured values when logging in.
+
+The seeder hashes passwords before storing them in the database. Passwords are not stored as plain text.
 
 ## Running Tests
 
-Run the complete automated test suite with:
+Run the full automated test suite:
 
 ```bash
 php artisan test
 ```
 
-The tests use an in-memory SQLite database configured in `phpunit.xml`.
+The tests use the SQLite in-memory database configured in `phpunit.xml`. The PHP `pdo_sqlite` extension must be enabled.
 
-The PHP `pdo_sqlite` extension must be enabled to run the test suite.
+The feature tests cover authentication, authorization, case operations, API behavior, validation, and status-change auditing.
 
 ## REST API
 
@@ -158,13 +203,13 @@ The API base URL is:
 /api
 ```
 
-For JSON requests, send:
+For JSON requests, include:
 
 ```http
 Accept: application/json
 ```
 
-Protected endpoints require a Sanctum token:
+Protected endpoints require a valid Sanctum token:
 
 ```http
 Authorization: Bearer <token>
@@ -172,17 +217,19 @@ Authorization: Bearer <token>
 
 ### Endpoints
 
-| Method | Endpoint | Purpose | Access |
-|---|---|---|---|
-| POST | `/api/login` | Get an API token | Anyone |
-| POST | `/api/logout` | Revoke the current token | Logged in users |
-| GET | `/api/cases` | Get paginated cases | Admin, Viewer |
-| POST | `/api/cases` | Create a case | Admin |
-| GET | `/api/cases/{id}` | Get a case | Admin, Viewer |
-| PUT | `/api/cases/{id}` | Update a case | Admin |
-| DELETE | `/api/cases/{id}` | Delete a case | Admin |
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/api/login` | Authenticate and obtain an API token |
+| POST | `/api/logout` | Revoke the current token |
+| GET | `/api/cases` | Retrieve paginated cases |
+| POST | `/api/cases` | Create a case |
+| GET | `/api/cases/{id}` | Retrieve a case |
+| PUT | `/api/cases/{id}` | Update a case |
+| DELETE | `/api/cases/{id}` | Delete a case |
 
-The case list API supports:
+Protected endpoints require authentication, and operations are subject to the application's authorization rules.
+
+The case listing supports these query parameters:
 
 ```text
 ?search=
@@ -195,145 +242,127 @@ The case list API supports:
 
 ### API Response Format
 
-API responses use a consistent structure:
+Successful responses follow a consistent structure:
 
 ```json
 {
-    "success": true,
-    "data": {},
-    "message": "..."
+  "success": true,
+  "data": {},
+  "message": "..."
 }
 ```
 
-Validation errors use the following structure:
+Validation errors follow this structure:
 
 ```json
 {
-    "success": false,
-    "data": null,
-    "message": "Validation failed.",
-    "errors": {
-        "case_number": [
-            "The case number has already been taken."
-        ]
-    }
+  "success": false,
+  "data": null,
+  "message": "Validation failed.",
+  "errors": {
+    "case_number": [
+      "The case number has already been taken."
+    ]
+  }
 }
 ```
 
-The API uses appropriate HTTP status codes including:
+Common HTTP status codes include:
 
 - `200` — Successful request
 - `201` — Resource created
 - `401` — Unauthenticated
-- `403` — Unauthorized
+- `403` — Forbidden
 - `404` — Resource not found
 - `422` — Validation error
 
-A Postman collection is available at:
+A Postman collection is available at `docs/postman_collection.json`.
 
-```text
-docs/postman_collection.json
-```
+## Database Design
+
+The main tables are:
+
+- `users` — Application accounts and roles
+- `cases` — Medical-device case records
+- `case_status_histories` — Recorded status transitions
+
+Each case references its creator through the `created_by` foreign key. Status history records the previous and new status, the case reference, the user ID associated with the change, and timestamps.
+
+The `case_number` column has a unique constraint, while the `status` column is indexed for filtering.
+
+See [`docs/database.md`](docs/database.md) for the database design.
+
+## Validation and Security
+
+The application includes:
+
+- Laravel Breeze authentication
+- Laravel Sanctum API authentication
+- Server-side authorization
+- Form Request validation
+- Eloquent mass-assignment protection
+- CSRF protection for web forms
+- Whitelisted sorting columns
+- Database uniqueness and foreign-key constraints
+- Environment-based configuration
+- `.env` excluded from version control
+- Status-change history recording
+
+The application uses dummy data and is intended for assignment evaluation, not direct use with real patient information.
+
+## Testing Coverage
+
+The automated feature tests cover scenarios including:
+
+- Valid login succeeds
+- Invalid login is rejected
+- Guests cannot access protected case pages or API endpoints
+- Admin can create a case through the web interface and API
+- Duplicate Case Numbers are rejected
+- A case can retain its existing Case Number during an update
+- Viewer permissions are enforced for restricted operations
+- Web status changes are recorded
+- API status changes are recorded
+- Updating unrelated fields does not create a status-history entry
+
+Run `php artisan test` to execute the suite.
 
 ## Documentation
 
 Additional project documentation is available in the `docs` directory:
 
-- `docs/database.md` — Database tables, columns, indexes and relationships
-- `docs/traceability.md` — Requirement-to-code-to-test traceability matrix
-- `docs/deployment.md` — AWS deployment outline (bonus)
+- [`docs/database.md`](docs/database.md) — Database tables, columns, indexes, and relationships
+- [`docs/traceability.md`](docs/traceability.md) — Requirement-to-code-to-test traceability
+- [`docs/deployment.md`](docs/deployment.md) — Proposed AWS deployment architecture
+- [`docs/postman_collection.json`](docs/postman_collection.json) — API request collection
 
-## Database
+The AWS document describes a proposed deployment plan; it does not imply that the application is deployed.
 
-The main application tables are:
+## Assumptions and Limitations
 
-```text
-users
-  |
-  | 1-to-many
-  |
-  v
-cases
-```
-
-Each case stores the user who created it through the `created_by` foreign key.
-
-The `case_number` field has a unique database index, and `status` has a database index to support filtering.
-
-See [`docs/database.md`](docs/database.md) for the complete database design.
-
-## Validation and Security
-
-The application includes the following security and validation measures:
-
-- Laravel Breeze authentication
-- Laravel Sanctum API authentication
-- Policy-based authorization for Admin/Viewer permissions
-- Form Request classes for backend validation
-- `$fillable` protection against mass assignment
-- `role` is not mass assignable
-- CSRF protection for web forms
-- Eloquent/query builder used for database access
-- User-provided sorting columns are whitelisted
-- Unique database constraint on Case Number
-- Foreign key constraint on `created_by`
-- `.env` is excluded from Git
-- `.env.example` is provided for configuration
-
-## Testing Coverage
-
-The automated test suite covers authentication, authorization, case creation, validation and API behavior.
-
-Important scenarios include:
-
-- Valid login succeeds
-- Invalid login is rejected
-- Guests cannot access protected case pages/API endpoints
-- Admin can create a case
-- Admin can create a case through the API
-- Duplicate Case Number is rejected
-- A case can retain its own Case Number when edited
-- Viewer cannot delete a case
-- Viewer cannot create a case
-
-## Assumptions and Known Limitations
-
-- The model is named `MedicalCase` because `Case` is a reserved PHP word; the database table remains `cases`.
-- The application uses only the two required roles: Admin and Viewer.
-- Laravel Breeze's public registration route remains enabled. New registrations receive the Viewer role. In a production system, public registration would be disabled or restricted.
-- No audit log for historical status changes is currently implemented.
-- No Nager.Date public holiday integration is implemented.
+- The model is named `MedicalCase` because `Case` is a reserved PHP keyword; the database table is named `cases`.
+- The application implements the Admin and Viewer roles.
+- Public registration remains enabled, with new registrations assigned the Viewer role. A production deployment should review and restrict registration as appropriate.
+- The status-history table currently deletes associated history when a case is deleted.
+- Nager.Date public holiday integration has not been implemented.
 - The application has not been deployed to a live hosting environment.
+- Only dummy medical data should be used.
 
 ## Bonus Features Implemented
 
-The following optional assignment features have been implemented:
-
-- Priority filtering on the case list
-- Column sorting on the case list
-- AWS deployment documentation in `docs/deployment.md`
-
-The following optional features were not implemented:
-
-- Engineer role
-- Nager.Date holiday integration
-- Live deployment
+- Priority filtering
+- Column sorting
 - Status-change audit log
-
-These can be added in a future iteration if required.
+- Proposed AWS deployment documentation
 
 ## Project Structure
-
-Important application areas include:
 
 ```text
 app/
 ├── Http/
 │   ├── Controllers/
-│   │   ├── Api/
-│   │   └── ...
-│   ├── Requests/
-│   └── ...
+│   │   └── Api/
+│   └── Requests/
 ├── Models/
 ├── Policies/
 └── ...
@@ -357,10 +386,9 @@ routes/
 └── web.php
 
 tests/
-├── Feature/
-└── Unit/
+└── Feature/
 ```
 
 ## License
 
-This project was created as a practical internship assignment and uses dummy data only.
+This project was created as a practical software developer internship assignment and uses dummy data only.
