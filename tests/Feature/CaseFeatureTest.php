@@ -129,4 +129,71 @@ class CaseFeatureTest extends TestCase
 
         $this->postJson('/api/cases', [])->assertStatus(403); // 403, not 422
     }
+  
+    public function test_status_change_is_recorded_with_previous_and_new_status(): void
+    {
+        $admin = $this->admin();
+
+        $case = MedicalCase::factory()->create([
+            'status' => 'Draft',
+        ]);
+
+        $this->actingAs($admin)
+            ->put("/cases/{$case->id}", $this->payload([
+                'case_number' => $case->case_number,
+                'status' => 'Approved',
+            ]))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('case_status_histories', [
+            'medical_case_id' => $case->id,
+            'old_status' => 'Draft',
+            'new_status' => 'Approved',
+            'changed_by' => $admin->id,
+        ]);
+    }
+
+    public function test_status_change_via_api_is_recorded(): void
+    {
+        $admin = $this->admin();
+        Sanctum::actingAs($admin);
+
+        $case = MedicalCase::factory()->create([
+            'status' => 'Draft',
+        ]);
+
+        $this->putJson("/api/cases/{$case->id}", $this->payload([
+            'case_number' => $case->case_number,
+            'status' => 'Approved',
+        ]))
+            ->assertOk()
+            ->assertJsonPath('data.status', 'Approved');
+
+        $this->assertDatabaseHas('case_status_histories', [
+            'medical_case_id' => $case->id,
+            'old_status' => 'Draft',
+            'new_status' => 'Approved',
+            'changed_by' => $admin->id,
+        ]);
+    }
+
+    public function test_updating_other_fields_does_not_create_status_history(): void
+    {
+        $admin = $this->admin();
+
+        $case = MedicalCase::factory()->create([
+            'status' => 'Draft',
+        ]);
+
+        $this->actingAs($admin)
+            ->put("/cases/{$case->id}", $this->payload([
+                'case_number' => $case->case_number,
+                'surgeon_name' => 'Dr. Updated',
+                'status' => 'Draft',
+            ]))
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('case_status_histories', 0);
+    }
+
 }

@@ -61,6 +61,50 @@
                         <div><dt class="text-gray-500">Last updated</dt><dd class="font-medium text-gray-900">{{ $case->updated_at->format('d M Y, H:i') }}</dd></div>
                     </dl>
                 </div>
+                
+                <div class="border-t border-gray-200 p-6 sm:px-8">
+                    <h3 class="text-base font-semibold text-gray-900">
+                        Status-change audit log
+                    </h3>
+
+                    @if ($case->statusHistories->isEmpty())
+                        <p class="mt-3 text-sm text-gray-500">
+                            No status changes recorded yet.
+                        </p>
+                    @else
+                        <div class="mt-4 overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                <thead>
+                                    <tr class="text-left text-xs uppercase tracking-wider text-gray-500">
+                                        <th class="py-3 pr-4">Previous status</th>
+                                        <th class="py-3 pr-4">New status</th>
+                                        <th class="py-3 pr-4">Changed by</th>
+                                        <th class="py-3">Date and time</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody class="divide-y divide-gray-100">
+                                    @foreach ($case->statusHistories as $history)
+                                        <tr>
+                                            <td class="py-3 pr-4">
+                                                {{ $history->old_status ?? '—' }}
+                                            </td>
+                                            <td class="py-3 pr-4 font-medium text-gray-900">
+                                                {{ $history->new_status }}
+                                            </td>
+                                            <td class="py-3 pr-4">
+                                                {{ $history->changedBy?->name ?? 'Unknown' }}
+                                            </td>
+                                            <td class="py-3 whitespace-nowrap text-gray-600">
+                                                {{ $history->created_at->format('d M Y, H:i') }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
 
                 @canany(['update', 'delete'], $case)
                     <div class="flex items-center justify-end gap-3 rounded-b-xl border-t border-gray-200 px-6 py-4 sm:px-8">

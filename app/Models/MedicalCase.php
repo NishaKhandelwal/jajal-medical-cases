@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 // "Case" is a reserved word in PHP, so the model is called MedicalCase.
 class MedicalCase extends Model
 {
@@ -56,5 +57,23 @@ class MedicalCase extends Model
         $direction = ($filters['direction'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
 
         return $query->orderBy($sort, $direction);
+    }
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(CaseStatusHistory::class, 'medical_case_id')
+            ->latest();
+    }
+    protected static function booted(): void
+    {
+        static::updated(function (MedicalCase $case) {
+            if ($case->wasChanged('status')) {
+                CaseStatusHistory::create([
+                    'medical_case_id' => $case->id,
+                    'old_status' => $case->getOriginal('status'),
+                    'new_status' => $case->status,
+                    'changed_by' => Auth::id(),
+                ]);
+            }
+        });
     }
 }
