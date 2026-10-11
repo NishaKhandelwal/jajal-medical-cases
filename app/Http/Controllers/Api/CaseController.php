@@ -41,12 +41,10 @@ class CaseController extends Controller
     {
         Gate::authorize('view', $case);
 
-        return view('cases.show', [
-            'case' => $case->load([
-                'creator:id,name',
-                'statusHistories.changedBy:id,name',
-            ]),
-        ]);    
+        return $this->success(
+            $case->load(['creator:id,name', 'statusHistories.changedBy:id,name']),
+            'Case retrieved.'
+        );    
     }
 
     public function update(CaseRequest $request, MedicalCase $case)

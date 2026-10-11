@@ -18,7 +18,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center px-4 py-10 bg-gradient-to-br from-indigo-50 via-white to-slate-100">
             <div class="text-center">
                 <a href="/" class="inline-flex">
-                    <x-application-logo class="w-16 h-16 fill-current text-indigo-600" />
+                    <img src="{{ asset('images/jajal-logo.png') }}" alt="Jajal Medical logo" class="h-16 w-auto">
                 </a>
                 <h1 class="mt-3 text-xl font-bold tracking-tight text-gray-900">Jajal Medical</h1>
                 <p class="text-sm text-gray-500">Medical Case Management</p>
