@@ -7,7 +7,7 @@ The Medical Case Management application could be hosted on AWS using the followi
 - **Amazon EC2:** Host the Laravel application using PHP and a web server such as Nginx. Configure the server to serve the application's `public` directory.
 - **Amazon RDS for MySQL:** Store user accounts, roles and medical case records in a managed MySQL database. Enable automated backups and keep the database private.
 - **Amazon S3:** Store uploaded documents or other application files, if file uploads are introduced. Keep the bucket private and grant access through an IAM role.
-- **Security Groups:** Allow HTTPS traffic on port 443 to the public application entry point and restrict SSH access to authorized administrators. Allow MySQL traffic on port 3306 only from the application's security group.
+- **Security Groups:** The load balancer accepts HTTPS (port 443) from the internet. The EC2 instance accepts traffic only from the load balancer's security group, and SSH only from authorized administrator IPs. The RDS instance sits in a private subnet and accepts MySQL (port 3306) only from the EC2 security group.
 - **Environment Secrets:** Store the application key, database credentials and other sensitive configuration in AWS Secrets Manager or Systems Manager Parameter Store. Do not commit `.env` files or secrets to Git.
 - **HTTPS:** Use an Application Load Balancer with AWS Certificate Manager to provide HTTPS and redirect HTTP traffic to HTTPS.
 
