@@ -1,87 +1,78 @@
-# Medical Case Management (Jajal Medical – Intern Assignment)
+# Medical Case Management
 
-A small Laravel application for managing medical-device implant cases from Draft to Completed.
+**Jajal Medical — Software Developer Intern Practical Assignment**
 
-**Dummy data only — no real patient information is used.**
+Medical Case Management is a Laravel web application for keeping track of medical-device implant cases, from the initial draft through planning, review, approval, and completion. It provides a dashboard, case records, role-based access, and a REST API. The project uses fictional sample data only; it does not use real patient information.
 
-## Technology Stack
+## What the application does
 
-- Laravel 11/12
-- PHP 8.2+
-- MySQL
-- Blade + Tailwind CSS
-- Laravel Breeze for authentication
-- Laravel Sanctum for API authentication
-- PHPUnit for automated testing
+### Login and user roles
 
-## Features
+Users sign in before opening case pages. The application has two roles:
 
-- Login and logout using Laravel Breeze
-- Clear error message for invalid login credentials
-- Dashboard with case counts:
-  - Total Cases
-  - Planning
-  - In Review
-  - Approved
-  - Completed
-- Case list with:
-  - Pagination (10 cases per page)
-  - Search by Case Number or Surgeon Name
-  - Filter by Status
-  - Filter by Priority
-  - Column sorting
-- Create and edit cases using a shared form
-- Case details page
-- Admin-only case deletion with server-side Policy authorization
-- Admin and Viewer roles
-- REST API secured with Laravel Sanctum tokens
-- Consistent JSON API response format
-- Form Request validation
-- Automated feature tests
+| Action | Admin | Viewer |
+|---|---|---|
+| View cases and the dashboard | Yes | Yes |
+| Create a case | Yes | No |
+| Edit a case or change its status | Yes | No |
+| Delete a case | Yes | No |
 
-## User Roles
+Permissions are checked on the server as well as in the interface, so a Viewer cannot perform a restricted action simply by sending a request directly.
 
-| Role | View Cases | Create/Edit | Change Status | Delete |
-|---|---|---|---|---|
-| Admin | Yes | Yes | Yes | Yes |
-| Viewer | Yes | No | No | No |
+### Dashboard and case list
 
-## Setup
+The dashboard shows the total number of cases and counts for Planning, In Review, Approved, and Completed. The case list displays 10 records per page and lets users search by Case Number or Surgeon Name, filter by Status or Priority, and sort the available columns.
 
-### 1. Clone the repository
+### Creating and reviewing a case
+
+The same form is used to create and edit a case. It checks the submitted information and displays validation messages beside the relevant fields. Each case has a unique Case Number, a fictional Patient Reference, Surgeon Name, Implant Type, Status, Priority, and an optional Surgery Date. The application records the logged-in user who created the case, along with creation and update timestamps.
+
+The case details page shows the full record and its history. When the status changes, the application records the previous status, the new status, the user associated with the change, and the time it happened. This history is recorded for changes made through both the web interface and the API. Editing an unrelated field does not create a status-change entry.
+
+### REST API
+
+The API uses Laravel Sanctum for token-based authentication. It supports listing, viewing, creating, updating, and deleting cases, with access controlled by the same Admin and Viewer roles. Case lists are paginated and support search, status and priority filters, and sorting. API validation errors include field-level messages.
+
+## Technology
+
+- **Language and framework:** PHP 8.4 and Laravel 12
+- **Database:** MySQL
+- **Web interface:** Laravel Blade and Tailwind CSS
+- **Web login:** Laravel Breeze
+- **API authentication:** Laravel Sanctum
+- **Automated tests:** PHPUnit
+- **Development tools:** Composer, Node.js/npm, Git, and Postman
+
+## Run the application locally
+
+### Requirements
+
+Install PHP 8.2 or later with the extensions required by Laravel, Composer, MySQL, Node.js, and npm. To run the automated tests with the included in-memory SQLite configuration, the PHP `pdo_sqlite` extension must also be enabled.
+
+### 1. Get the code and install dependencies
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/NishaKhandelwal/jajal-medical-cases.git
 cd jajal-medical-cases
-```
-
-### 2. Install PHP dependencies
-
-```bash
 composer install
-```
-
-### 3. Install frontend dependencies
-
-```bash
 npm install
 npm run build
 ```
 
-### 4. Configure the environment
+### 2. Create your environment file
 
 Copy `.env.example` to `.env`.
 
-On Linux/macOS:
-
-```bash
-cp .env.example .env
-```
-
-On Windows PowerShell:
+**Windows PowerShell**
 
 ```powershell
 Copy-Item .env.example .env
+```
+
+**Linux or macOS**
+
+```bash
+cp .env.example .env
 ```
 
 Generate the application key:
@@ -90,7 +81,7 @@ Generate the application key:
 php artisan key:generate
 ```
 
-Update the database settings in `.env`:
+In `.env`, configure your MySQL connection and the demo accounts. For the demo login details listed below, use these values before running the seeder:
 
 ```env
 DB_CONNECTION=mysql
@@ -99,72 +90,63 @@ DB_PORT=3306
 DB_DATABASE=jajal_medical_cases
 DB_USERNAME=root
 DB_PASSWORD=your_mysql_password
+
+SEED_ADMIN_EMAIL=admin@example.com
+SEED_ADMIN_PASSWORD=Admin@12345
+SEED_VIEWER_EMAIL=viewer@example.com
+SEED_VIEWER_PASSWORD=Viewer@12345
 ```
 
-Create the MySQL database if it does not already exist:
+Create the database if it does not already exist:
 
 ```sql
 CREATE DATABASE jajal_medical_cases;
 ```
 
-### 5. Run migrations and seed demo data
+Keep `.env` on your own machine and do not commit it to Git. The values above are for local assignment testing only.
+
+### 3. Create the tables and sample records
+
+Run this once when setting up a new, empty database:
 
 ```bash
 php artisan migrate --seed
 ```
 
-The seeder creates demo Admin and Viewer users along with dummy medical cases.
+The migrations create the application tables. The seeder creates the Admin and Viewer demo accounts and 25 fictional case records. The seeder uses predefined case numbers, so it should not be rerun against an already seeded database. Starting or restarting the Laravel server does not require seeding again.
 
-### 6. Start the application
+### 4. Start the application
 
 ```bash
 php artisan serve
 ```
 
-The application will be available at:
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser. Use `Ctrl+C` in the terminal to stop the local development server.
 
-```text
-http://127.0.0.1:8000
-```
+## Demo login details
 
-## Test Login Credentials
-
-The following are dummy credentials intended only for testing.
+Use these accounts after following the setup steps and setting the matching password values in `.env` before seeding.
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | admin@example.com | Admin@12345 |
-| Viewer | viewer@example.com | Viewer@12345 |
+| Admin | `admin@example.com` | `Admin@12345` |
+| Viewer | `viewer@example.com` | `Viewer@12345` |
 
-The credentials are configured through the `SEED_*` variables in `.env.example`.
+These are fictional evaluation accounts, not accounts for real users. Passwords are hashed before they are saved to the database.
 
-## Running Tests
+## Run the tests
 
-Run the complete automated test suite with:
+Run the automated feature tests with:
 
 ```bash
 php artisan test
 ```
 
-The tests use an in-memory SQLite database configured in `phpunit.xml`.
+The tests cover successful and unsuccessful login, guest access restrictions, case creation, duplicate Case Number validation, role permissions, and status-history recording through the web interface and API. They also check that changing unrelated case fields does not add a status-history record.
 
-The PHP `pdo_sqlite` extension must be enabled to run the test suite.
+## REST API reference
 
-## REST API
-
-The API base URL is:
-
-```text
-/api
-```
-
-For JSON requests, send:
-
-```http
-Accept: application/json
-```
-
-Protected endpoints require a Sanctum token:
+The local API base URL is `http://127.0.0.1:8000/api`. Send `Accept: application/json` with JSON requests. Protected endpoints require a Sanctum token in the header:
 
 ```http
 Authorization: Bearer <token>
@@ -174,169 +156,71 @@ Authorization: Bearer <token>
 
 | Method | Endpoint | Purpose | Access |
 |---|---|---|---|
-| POST | `/api/login` | Get an API token | Anyone |
-| POST | `/api/logout` | Revoke the current token | Logged in users |
-| GET | `/api/cases` | Get paginated cases | Admin, Viewer |
-| POST | `/api/cases` | Create a case | Admin |
-| GET | `/api/cases/{id}` | Get a case | Admin, Viewer |
-| PUT | `/api/cases/{id}` | Update a case | Admin |
-| DELETE | `/api/cases/{id}` | Delete a case | Admin |
+| `POST` | `/api/login` | Sign in and receive a token | Public |
+| `POST` | `/api/logout` | Revoke the current token | Authenticated user |
+| `GET` | `/api/cases` | List cases | Admin, Viewer |
+| `POST` | `/api/cases` | Create a case | Admin |
+| `GET` | `/api/cases/{id}` | View one case | Admin, Viewer |
+| `PUT` | `/api/cases/{id}` | Update a case | Admin |
+| `DELETE` | `/api/cases/{id}` | Delete a case | Admin |
 
-The case list API supports:
+The case-list endpoint accepts these query parameters:
 
-```text
-?search=
-?status=
-?priority=
-?sort=
-?direction=
-?page=
-```
+| Parameter | Purpose |
+|---|---|
+| `search` | Search by Case Number or Surgeon Name |
+| `status` | Filter by status |
+| `priority` | Filter by priority |
+| `sort` | Choose a supported column to sort by |
+| `direction` | Choose ascending or descending order |
+| `page` | Select a page of results |
 
-### API Response Format
+Successful responses use a consistent JSON structure, with a `success` value, `data`, and a `message`. Validation failures return field-level errors. The API uses standard HTTP response codes such as `200`, `201`, `401`, `403`, `404`, and `422` where appropriate.
 
-API responses use a consistent structure:
+A Postman request collection is included at [`docs/postman_collection.json`](docs/postman_collection.json).
 
-```json
-{
-    "success": true,
-    "data": {},
-    "message": "..."
-}
-```
+## Database overview
 
-Validation errors use the following structure:
+The application uses these main tables:
 
-```json
-{
-    "success": false,
-    "data": null,
-    "message": "Validation failed.",
-    "errors": {
-        "case_number": [
-            "The case number has already been taken."
-        ]
-    }
-}
-```
+- **`users`** stores login details and each user's role.
+- **`cases`** stores case details and the ID of the user who created each case.
+- **`case_status_histories`** stores status changes, including the previous and new values, the associated user, and timestamps.
 
-The API uses appropriate HTTP status codes including:
+Each case points to its creator through `cases.created_by`. Case Numbers have a unique database constraint, and the status field is indexed for filtering. The Laravel migrations define the relationships and constraints.
 
-- `200` — Successful request
-- `201` — Resource created
-- `401` — Unauthenticated
-- `403` — Unauthorized
-- `404` — Resource not found
-- `422` — Validation error
+See [`docs/database.md`](docs/database.md) for the table and relationship details.
 
-A Postman collection is available at:
+## Validation and security
 
-```text
-docs/postman_collection.json
-```
+The application uses Laravel Form Request classes to validate case input, including the allowed statuses and priorities, valid optional dates, and unique Case Numbers. When editing a case, the uniqueness check allows that case to keep its existing Case Number. Database constraints provide an additional safeguard for unique Case Numbers and relationships.
 
-## Documentation
+Laravel authentication protects the web pages, Sanctum protects token-authenticated API routes, and server-side authorization restricts Admin-only actions. The application also uses mass-assignment protection, CSRF protection for web forms, and a whitelist of columns that can be used for sorting. Configuration and passwords belong in the local `.env` file, not in the repository.
 
-Additional project documentation is available in the `docs` directory:
+## Project documentation
 
-- `docs/database.md` — Database tables, columns, indexes and relationships
-- `docs/traceability.md` — Requirement-to-code-to-test traceability matrix
-- `docs/deployment.md` — AWS deployment outline (bonus)
+- [`docs/database.md`](docs/database.md) — tables, fields, indexes, and relationships
+- [`docs/traceability.md`](docs/traceability.md) — requirements linked to the code and tests that verify them
+- [`docs/postman_collection.json`](docs/postman_collection.json) — API requests for testing
+- [`docs/deployment.md`](docs/deployment.md) — proposed AWS hosting approach
 
-## Database
+## Next steps
 
-The main application tables are:
+The required web screens, case management, role checks, API endpoints, database setup, and automated tests are implemented. The following optional improvements would be the next work to take on:
 
-```text
-users
-  |
-  | 1-to-many
-  |
-  v
-cases
-```
+1. **Public-holiday information:** Use Laravel's HTTP client to call the Nager.Date public API and display relevant holidays near the Surgery Date field. Put the API URL in `.env`, set a request timeout, and show the form normally if the external service is unavailable.
+2. **Live deployment:** Follow the plan in `docs/deployment.md` to host the Laravel application on AWS, use RDS for MySQL, configure production secrets and restricted network access, and enable HTTPS. The document describes the proposed approach rather than a completed deployment.
 
-Each case stores the user who created it through the `created_by` foreign key.
-
-The `case_number` field has a unique database index, and `status` has a database index to support filtering.
-
-See [`docs/database.md`](docs/database.md) for the complete database design.
-
-## Validation and Security
-
-The application includes the following security and validation measures:
-
-- Laravel Breeze authentication
-- Laravel Sanctum API authentication
-- Policy-based authorization for Admin/Viewer permissions
-- Form Request classes for backend validation
-- `$fillable` protection against mass assignment
-- `role` is not mass assignable
-- CSRF protection for web forms
-- Eloquent/query builder used for database access
-- User-provided sorting columns are whitelisted
-- Unique database constraint on Case Number
-- Foreign key constraint on `created_by`
-- `.env` is excluded from Git
-- `.env.example` is provided for configuration
-
-## Testing Coverage
-
-The automated test suite covers authentication, authorization, case creation, validation and API behavior.
-
-Important scenarios include:
-
-- Valid login succeeds
-- Invalid login is rejected
-- Guests cannot access protected case pages/API endpoints
-- Admin can create a case
-- Admin can create a case through the API
-- Duplicate Case Number is rejected
-- A case can retain its own Case Number when edited
-- Viewer cannot delete a case
-- Viewer cannot create a case
-
-## Assumptions and Known Limitations
-
-- The model is named `MedicalCase` because `Case` is a reserved PHP word; the database table remains `cases`.
-- The application uses only the two required roles: Admin and Viewer.
-- Laravel Breeze's public registration route remains enabled. New registrations receive the Viewer role. In a production system, public registration would be disabled or restricted.
-- No audit log for historical status changes is currently implemented.
-- No Nager.Date public holiday integration is implemented.
-- The application has not been deployed to a live hosting environment.
-
-## Bonus Features Implemented
-
-The following optional assignment features have been implemented:
-
-- Priority filtering on the case list
-- Column sorting on the case list
-- AWS deployment documentation in `docs/deployment.md`
-
-The following optional features were not implemented:
-
-- Engineer role
-- Nager.Date holiday integration
-- Live deployment
-- Status-change audit log
-
-These can be added in a future iteration if required.
-
-## Project Structure
-
-Important application areas include:
+## Project structure
 
 ```text
 app/
 ├── Http/
 │   ├── Controllers/
-│   │   ├── Api/
-│   │   └── ...
-│   ├── Requests/
-│   └── ...
+│   │   └── Api/
+│   └── Requests/
 ├── Models/
 ├── Policies/
-└── ...
 
 database/
 ├── factories/
@@ -357,10 +241,9 @@ routes/
 └── web.php
 
 tests/
-├── Feature/
-└── Unit/
+└── Feature/
 ```
 
-## License
+---
 
-This project was created as a practical internship assignment and uses dummy data only.
+This project was created for the Jajal Medical Software Developer Intern practical assignment. Use fictional sample records only.
