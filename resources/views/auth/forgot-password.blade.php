@@ -20,6 +20,6 @@
             <x-primary-button>
                 {{ __('Email Password Reset Link') }}
             </x-primary-button>
-        </div>
+        </div>      
     </form>
 </x-guest-layout>
